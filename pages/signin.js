@@ -1,6 +1,8 @@
+'use client'
+
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { signInWithEmailAndPassword } from "firebase/auth"
 import { auth } from "@/firebase/config"
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
@@ -26,16 +28,6 @@ const SignIn = () => {
             router.push("/dashboard")
         } catch (error) {
             setError("Invalid credentials. Please try again.")
-        }
-    }
-
-    const handleGoogleSignIn = async () => {
-        const provider = new GoogleAuthProvider()
-        try {
-            const result = await signInWithPopup(auth, provider)
-            router.push("/dashboard")
-        } catch (error) {
-            setError(error.message)
         }
     }
 
@@ -94,6 +86,11 @@ const SignIn = () => {
                                 )}
                             </button>
                         </div>
+                        <div className="mb-4 text-right">
+                            <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                                Forgot your password?
+                            </Link>
+                        </div>
                     </div>
                     <div>
                         <button
@@ -103,32 +100,19 @@ const SignIn = () => {
                             Sign In
                         </button>
                     </div>
-                    <button
-                        type="button"
-                        onClick={handleGoogleSignIn}
-                        className="group relative w-full flex justify-center py-3 px-4 mt-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out"
-                    >
-                        <span className="flex items-center justify-center">
-                            <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google.png"
-                                alt="Google"
-                                className="h-5 w-5 mr-2"
-                            />
-                            Sign In with Google
-                        </span>
-                    </button>
                 </form>
-                {/*<div className="text-center">*/}
-                {/*    <p className="text-sm text-gray-600">*/}
-                {/*        Don't have an account?{" "}*/}
-                {/*        <Link href="/signup" className="text-blue-600 hover:underline">*/}
-                {/*            Sign Up*/}
-                {/*        </Link>*/}
-                {/*    </p>*/}
-                {/*</div>*/}
+                <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                        Don't have an account?{" "}
+                        <Link href="/signup" className="text-blue-600 hover:underline">
+                            Sign Up
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     )
 }
 
 export default SignIn
+
