@@ -118,14 +118,14 @@ const SignIn = () => {
                         </span>
                     </button>
                 </form>
-                <div className="text-center">
-                    <p className="text-sm text-gray-600">
-                        Don't have an account?{" "}
-                        <Link href="/signup" className="text-blue-600 hover:underline">
-                            Sign Up
-                        </Link>
-                    </p>
-                </div>
+                {/*<div className="text-center">*/}
+                {/*    <p className="text-sm text-gray-600">*/}
+                {/*        Don't have an account?{" "}*/}
+                {/*        <Link href="/signup" className="text-blue-600 hover:underline">*/}
+                {/*            Sign Up*/}
+                {/*        </Link>*/}
+                {/*    </p>*/}
+                {/*</div>*/}
             </div>
         </div>
     )
