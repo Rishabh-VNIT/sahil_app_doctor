@@ -1,9 +1,9 @@
+// components/SignIn.js
 'use client'
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import { signInWithEmailAndPassword } from "firebase/auth"
-import { auth } from "@/firebase/config"
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth"
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 
@@ -12,6 +12,7 @@ const SignIn = () => {
     const [showPassword, setShowPassword] = useState(false)
     const [error, setError] = useState("")
     const router = useRouter()
+    const auth = getAuth()
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -27,7 +28,7 @@ const SignIn = () => {
             await signInWithEmailAndPassword(auth, email, password)
             router.push("/dashboard")
         } catch (error) {
-            setError("Invalid credentials. Please try again.")
+            setError("Invalid email or password")
         }
     }
 
@@ -115,4 +116,3 @@ const SignIn = () => {
 }
 
 export default SignIn
-

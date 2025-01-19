@@ -1,40 +1,132 @@
-import React, { useState } from 'react'
-import { Trash2, Plus, Calendar, Clock, ChevronDown, ChevronUp, AlertCircle, Check, X } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
+import { Trash2, Plus, Calendar, Clock, ChevronDown, ChevronUp, AlertCircle, Check, X } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
+import { db } from '@/firebase/config';
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
 const DoctorScheduleManager = () => {
-    const [scheduleForm, setScheduleForm] = useState({ startTime: "", endTime: "", interval: "" })
-    const [message, setMessage] = useState("")
-    const [status, setStatus] = useState("idle")
-    const [schedules, setSchedules] = useState([])
-    const [expandedSchedule, setExpandedSchedule] = useState(null)
-    const [expandedSlot, setExpandedSlot] = useState(null)
+    const [scheduleForm, setScheduleForm] = useState({ startTime: "", endTime: "", interval: "" });
+    const [message, setMessage] = useState("");
+    const [status, setStatus] = useState("idle");
+    const [schedules, setSchedules] = useState([]);
+    const [expandedSchedule, setExpandedSchedule] = useState(null);
+    const [expandedSlot, setExpandedSlot] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        // Implement your submit logic here
-        const newSchedule = {
-            ...scheduleForm,
-            createdAt: new Date().toISOString(),
-            timeSlots: generateTimeSlots(scheduleForm.startTime, scheduleForm.endTime, parseInt(scheduleForm.interval))
+    const { user } = useAuth();
+
+    useEffect(() => {
+        fetchDoctorSchedules();
+    }, [user]);
+
+    const fetchDoctorSchedules = async () => {
+        if (!user?.uid) return;
+
+        try {
+            setLoading(true);
+            // Get schedules from the nested collection
+            const schedulesRef = collection(db, `doctors/${user.uid}/schedules`);
+            const schedulesSnapshot = await getDocs(schedulesRef);
+
+            const fetchedSchedules = schedulesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            setSchedules(fetchedSchedules);
+        } catch (error) {
+            setMessage("Error fetching schedules: " + error.message);
+            setStatus("error");
+        } finally {
+            setLoading(false);
         }
-        setSchedules([...schedules, newSchedule])
-        setScheduleForm({ startTime: "", endTime: "", interval: "" })
-    }
+    };
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!user?.uid) {
+            setMessage("Please log in to create schedules");
+            setStatus("error");
+            return;
+        }
+
+        try {
+            setStatus("loading");
+
+            const newSchedule = {
+                startTime: scheduleForm.startTime,
+                endTime: scheduleForm.endTime,
+                interval: parseInt(scheduleForm.interval),
+                createdAt: new Date().toISOString(),
+                timeSlots: generateTimeSlots(scheduleForm.startTime, scheduleForm.endTime, parseInt(scheduleForm.interval))
+            };
+
+            // Add to the nested schedules collection
+            const schedulesRef = collection(db, `doctors/${user.uid}/schedules`);
+            const docRef = await addDoc(schedulesRef, newSchedule);
+
+            setSchedules([...schedules, { id: docRef.id, ...newSchedule }]);
+            setScheduleForm({ startTime: "", endTime: "", interval: "" });
+            setMessage("Schedule created successfully");
+            setStatus("success");
+        } catch (error) {
+            setMessage("Error creating schedule: " + error.message);
+            setStatus("error");
+        }
+    };
+
+
+    // Rest of the component remains the same
+    const handleDelete = async (scheduleId) => {
+        try {
+            // Delete from the nested collection
+            await deleteDoc(doc(db, `doctors/${user.uid}/schedules`, scheduleId));
+            setSchedules(schedules.filter(s => s.id !== scheduleId));
+            setMessage("Schedule deleted successfully");
+            setStatus("success");
+        } catch (error) {
+            setMessage("Error deleting schedule: " + error.message);
+            setStatus("error");
+        }
+    };
+
+    const handleAppointmentStatusUpdate = async (scheduleId, slotIndex, newStatus) => {
+        try {
+            // Update in the nested collection
+            const scheduleRef = doc(db, `doctors/${user.uid}/schedules`, scheduleId);
+            const updatedSchedule = { ...schedules.find(s => s.id === scheduleId) };
+            updatedSchedule.timeSlots[slotIndex].status = newStatus;
+
+            await updateDoc(scheduleRef, { timeSlots: updatedSchedule.timeSlots });
+
+            setSchedules(schedules.map(s =>
+                s.id === scheduleId ? updatedSchedule : s
+            ));
+
+            setMessage(`Appointment ${newStatus.toLowerCase()} successfully`);
+            setStatus("success");
+        } catch (error) {
+            setMessage("Error updating appointment status: " + error.message);
+            setStatus("error");
+        }
+    };
 
     const generateTimeSlots = (start, end, intervalMinutes) => {
-        const slots = []
-        const startDate = new Date(`2000-01-01T${start}`)
-        const endDate = new Date(`2000-01-01T${end}`)
-        let currentSlot = new Date(startDate)
+        const slots = [];
+        const startDate = new Date(`2000-01-01T${start}`);
+        const endDate = new Date(`2000-01-01T${end}`);
+        let currentSlot = new Date(startDate);
 
         while (currentSlot < endDate) {
             const slotStart = currentSlot.toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false
-            })
+            });
 
-            currentSlot = new Date(currentSlot.getTime() + intervalMinutes * 60000)
+            currentSlot = new Date(currentSlot.getTime() + intervalMinutes * 60000);
 
             const slotEnd = currentSlot > endDate
                 ? endDate.toLocaleTimeString('en-US', {
@@ -46,33 +138,39 @@ const DoctorScheduleManager = () => {
                     hour: '2-digit',
                     minute: '2-digit',
                     hour12: false
-                })
+                });
 
             slots.push({
                 start: slotStart,
                 end: slotEnd,
-                booked: Math.random() < 0.3, // 30% chance of being booked for demonstration
-                patient: {
-                    name: "John Doe",
-                    phone: "123-456-7890",
-                    gender: "Male",
-                    email: "john@example.com",
-                    dob: "1990-01-01"
-                },
-                status: Math.random() < 0.5 ? "Accepted" : "Rejected" // Randomly assign status for demonstration
-            })
+                status: 'Available',
+                booked: false,
+                patient: null
+            });
         }
 
-        return slots
-    }
+        return slots;
+    };
 
-    const toggleSchedule = (createdAt) => {
-        setExpandedSchedule(expandedSchedule === createdAt ? null : createdAt)
-        setExpandedSlot(null)
-    }
+    const toggleSchedule = (scheduleId) => {
+        setExpandedSchedule(expandedSchedule === scheduleId ? null : scheduleId);
+        setExpandedSlot(null);
+    };
 
     const toggleSlot = (scheduleIndex, slotIndex) => {
-        setExpandedSlot(expandedSlot && expandedSlot.scheduleIndex === scheduleIndex && expandedSlot.slotIndex === slotIndex ? null : { scheduleIndex, slotIndex })
+        setExpandedSlot(expandedSlot && expandedSlot.scheduleIndex === scheduleIndex && expandedSlot.slotIndex === slotIndex
+            ? null
+            : { scheduleIndex, slotIndex });
+    };
+
+    // ... Rest of the JSX remains the same as in your original code ...
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+            </div>
+        );
     }
 
     return (
@@ -152,7 +250,7 @@ const DoctorScheduleManager = () => {
                         ) : (
                             <div className="space-y-4">
                                 {schedules.map((schedule, scheduleIndex) => (
-                                    <div key={schedule.createdAt} className="bg-gray-50 p-4 rounded-md border border-gray-200 transition duration-200 ease-in-out hover:shadow-md">
+                                    <div key={schedule.id} className="bg-gray-50 p-4 rounded-md border border-gray-200 transition duration-200 ease-in-out hover:shadow-md">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center space-x-4">
                                                 <Clock className="text-blue-500" size={20} />
@@ -167,26 +265,24 @@ const DoctorScheduleManager = () => {
                                             </div>
                                             <div className="flex items-center space-x-2">
                                                 <button
-                                                    onClick={() => toggleSchedule(schedule.createdAt)}
+                                                    onClick={() => toggleSchedule(schedule.id)}
                                                     className="text-gray-500 hover:text-blue-500 focus:outline-none transition duration-200 ease-in-out"
                                                 >
-                                                    {expandedSchedule === schedule.createdAt ? (
+                                                    {expandedSchedule === schedule.id ? (
                                                         <ChevronUp size={20} />
                                                     ) : (
                                                         <ChevronDown size={20} />
                                                     )}
                                                 </button>
                                                 <button
-                                                    onClick={() => {
-                                                        setSchedules(schedules.filter(s => s.createdAt !== schedule.createdAt))
-                                                    }}
+                                                    onClick={() => handleDelete(schedule.id)}
                                                     className="text-red-500 hover:text-red-700 focus:outline-none transition duration-200 ease-in-out"
                                                 >
                                                     <Trash2 size={20} />
                                                 </button>
                                             </div>
                                         </div>
-                                        {expandedSchedule === schedule.createdAt && (
+                                        {expandedSchedule === schedule.id && (
                                             <div className="mt-4">
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-4">
                                                     {schedule.timeSlots.map((slot, slotIndex) => (
@@ -204,24 +300,32 @@ const DoctorScheduleManager = () => {
                                                     ))}
                                                 </div>
                                                 {expandedSlot &&
-                                                    expandedSlot.scheduleIndex === scheduleIndex && (
+                                                    expandedSlot.scheduleIndex === scheduleIndex && schedule.timeSlots[expandedSlot.slotIndex].booked && (
                                                         <div className="bg-white p-4 rounded-md border border-gray-200 shadow-md">
                                                             <h3 className="text-lg font-semibold mb-2">Appointment Details</h3>
-                                                            <div className="grid grid-cols-2 gap-4">
-                                                                <p><strong>Name:</strong> {schedule.timeSlots[expandedSlot.slotIndex].patient.name}</p>
-                                                                <p><strong>Phone:</strong> {schedule.timeSlots[expandedSlot.slotIndex].patient.phone}</p>
-                                                                <p><strong>Gender:</strong> {schedule.timeSlots[expandedSlot.slotIndex].patient.gender}</p>
-                                                                <p><strong>Email:</strong> {schedule.timeSlots[expandedSlot.slotIndex].patient.email}</p>
-                                                                <p><strong>DOB:</strong> {schedule.timeSlots[expandedSlot.slotIndex].patient.dob}</p>
-                                                                <p><strong>Status:</strong> {schedule.timeSlots[expandedSlot.slotIndex].status}</p>
-                                                            </div>
+                                                            {schedule.timeSlots[expandedSlot.slotIndex].patient && (
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <p><strong>Name:</strong> {schedule.timeSlots[expandedSlot.slotIndex].patient.name}</p>
+                                                                    <p><strong>Phone:</strong> {schedule.timeSlots[expandedSlot.slotIndex].patient.phone}</p>
+                                                                    <p><strong>Gender:</strong> {schedule.timeSlots[expandedSlot.slotIndex].patient.gender}</p>
+                                                                    <p><strong>Email:</strong> {schedule.timeSlots[expandedSlot.slotIndex].patient.email}</p>
+                                                                    <p><strong>DOB:</strong> {schedule.timeSlots[expandedSlot.slotIndex].patient.dob}</p>
+                                                                    <p><strong>Status:</strong> {schedule.timeSlots[expandedSlot.slotIndex].status}</p>
+                                                                </div>
+                                                            )}
                                                             <div className="mt-4 flex justify-end space-x-2">
-                                                                <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
-                                                                    <Check size={16} className="mr-2 inline-block" />
+                                                                <button
+                                                                    onClick={() => handleAppointmentStatusUpdate(schedule.id, expandedSlot.slotIndex, 'Accepted')}
+                                                                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex items-center"
+                                                                >
+                                                                    <Check size={16} className="mr-2" />
                                                                     Accept
                                                                 </button>
-                                                                <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-                                                                    <X size={16} className="mr-2 inline-block" />
+                                                                <button
+                                                                    onClick={() => handleAppointmentStatusUpdate(schedule.id, expandedSlot.slotIndex, 'Rejected')}
+                                                                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded flex items-center"
+                                                                >
+                                                                    <X size={16} className="mr-2" />
                                                                     Reject
                                                                 </button>
                                                             </div>
@@ -243,7 +347,7 @@ const DoctorScheduleManager = () => {
                 }`}>
                     {status === "success" ? (
                         <div className="flex items-center justify-center">
-                            <Calendar className="mr-2 text-green-500" />
+                            <Check className="mr-2 text-green-500" />
                             {message}
                         </div>
                     ) : (
@@ -255,8 +359,7 @@ const DoctorScheduleManager = () => {
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
 
-export default DoctorScheduleManager
-
+export default DoctorScheduleManager;
