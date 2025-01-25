@@ -1,8 +1,31 @@
 import React from "react";
 import { Home, Calendar, Clock, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/router';
+import Link from "next/link"; // Import useRouter
 
-const Sidebar = ({ isOpen, setIsOpen, onDashboardClick, onAppointmentsClick, onScheduleManagerClick, onSettingsClick }) => { // Update 1: Added onSettingsClick prop
+const Sidebar = ({ isOpen, setIsOpen, onDashboardClick, onAppointmentsClick, onScheduleManagerClick, onSettingsClick }) => {
+    const router = useRouter(); // Use the router hook
     const toggleSidebar = () => setIsOpen(!isOpen);
+
+    const handleAppointmentsClick = () => {
+        if (router.pathname !== '/dashboard') {
+            // Navigate to dashboard if not already on the dashboard
+            router.push('/dashboard');
+        }
+        // Perform the appointments action
+        if(onAppointmentsClick)
+        onAppointmentsClick();
+    };
+
+    const handleScheduleManagerClick = () => {
+        if (router.pathname !== '/dashboard') {
+            // Navigate to dashboard if not already on the dashboard
+            router.push('/dashboard');
+        }
+        // Perform the schedule manager action
+        if(onScheduleManagerClick)
+        onScheduleManagerClick();
+    };
 
     return (
         <aside
@@ -28,22 +51,24 @@ const Sidebar = ({ isOpen, setIsOpen, onDashboardClick, onAppointmentsClick, onS
                         </button>
                     </li>
                     <li>
-                        <button onClick={onAppointmentsClick} className="w-full flex items-center px-4 py-3 hover:bg-blue-500 transition-colors duration-200">
+                        <button onClick={handleAppointmentsClick} className="w-full flex items-center px-4 py-3 hover:bg-blue-500 transition-colors duration-200">
                             <Calendar className="h-5 w-5 mr-3" />
                             Appointments
                         </button>
                     </li>
                     <li>
-                        <button onClick={onScheduleManagerClick} className="w-full flex items-center px-4 py-3 hover:bg-blue-500 transition-colors duration-200">
-                            <Clock className="h-5 w-5 mr-3" />
-                            Schedule Manager
-                        </button>
+                            <button onClick={handleScheduleManagerClick} className="w-full flex items-center px-4 py-3 hover:bg-blue-500 transition-colors duration-200">
+                                <Clock className="h-5 w-5 mr-3" />
+                                Schedule Manager
+                            </button>
                     </li>
                     <li>
-                        <button onClick={onSettingsClick} className="w-full flex items-center px-4 py-3 hover:bg-blue-500 transition-colors duration-200"> {/* Update 2: Added onClick handler */}
+                        <Link href={"hospital"}>
+                        <div onClick={onSettingsClick} className="w-full flex items-center px-4 py-3 hover:bg-blue-500 transition-colors duration-200">
                             <Settings className="h-5 w-5 mr-3" />
-                            Settings
-                        </button>
+                            Hospital
+                        </div>
+                        </Link>
                     </li>
                 </ul>
             </nav>
@@ -52,4 +77,3 @@ const Sidebar = ({ isOpen, setIsOpen, onDashboardClick, onAppointmentsClick, onS
 };
 
 export default Sidebar;
-

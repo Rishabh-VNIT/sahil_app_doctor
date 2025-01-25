@@ -67,6 +67,7 @@ const SignUp = () => {
         address: "",
         state: "",
         city: "",
+        consultationFees: "",
     })
     const [showPassword, setShowPassword] = useState(false)
     const [error, setError] = useState("")
@@ -313,6 +314,24 @@ const SignUp = () => {
                             className="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             required
                         />
+                    </div>
+
+                    <div className="mb-4">
+                        <label htmlFor="consultationFees" className="block text-gray-700 text-sm font-bold mb-2">
+                            Consultation Fees (₹)
+                        </label>
+                        <div className="relative">
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">₹</span>
+                            <input
+                                type="number"
+                                id="consultationFees"
+                                name="consultationFees"
+                                value={formData.consultationFees}
+                                onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-3 px-10 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            />
+                        </div>
                     </div>
 
                     <div className="mb-4">
