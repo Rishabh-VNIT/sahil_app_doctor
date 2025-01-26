@@ -72,7 +72,7 @@ const states = [
         name: "Telangana",
         cities: ["Hyderabad", "Warangal", "Khammam", "Karimnagar", "Nizamabad", "Mahabubnagar", "Nalgonda"],
     },
-    { name: "Tripura", cities: ["Agartala", "Udaipur", "Dharmanagar", "Sabroom", "Kailasahar"] },
+    { name: "Tripura", cities: ["Agartala", "Udaipur", "Harmanna", "Sabroom", "Kailasahar"] },
     {
         name: "Uttar Pradesh",
         cities: ["Lucknow", "Kanpur", "Agra", "Varanasi", "Allahabad", "Meerut", "Ghaziabad", "Bareilly"],
@@ -146,6 +146,8 @@ const DoctorProfilePage = () => {
                     ...updatedDetails,
                     profileImage: data.secure_url,
                 }
+                setFormData(updatedProfile);
+
                 setUpdatedDetails(updatedProfile)
                 setDoctorDetails(updatedProfile)
                 await updateDoc(doc(db, "doctors", user.uid), { profileImage: data.secure_url })

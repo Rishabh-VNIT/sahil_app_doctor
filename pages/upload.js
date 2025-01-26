@@ -1,56 +1,81 @@
-'use client';
+import { useState } from "react";
 
-import React, { useState } from 'react';
-// import { GoogleIcon } from 'lucide-react';
-
-export default function GoogleDriveUpload() {
+export default function FileUpload() {
     const [file, setFile] = useState(null);
-    const [uploadStatus, setUploadStatus] = useState('');
+    const [fileId, setFileId] = useState(null);
+    const [fileName, setFileName] = useState(null);  // Store the original filename
 
-    const handleFileUpload = async () => {
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
+
+    const handleUpload = async () => {
         if (!file) {
-            setUploadStatus('No file selected');
+            alert("Please select a file first!");
             return;
         }
 
-        // OAuth popup logic remains the same as previous example
-        const popup = window.open(
-            `https://accounts.google.com/o/oauth2/v2/auth?` +
-            `client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}` +
-            `&redirect_uri=${encodeURIComponent(window.location.origin)}` +
-            `&response_type=token` +
-            `&scope=https://www.googleapis.com/auth/drive.file` +
-            `&include_granted_scopes=true` +
-            `&state=upload_pdf`
-        );
+        const formData = new FormData();
+        formData.append("file", file);
 
-        // Rest of the component code remains the same
+        try {
+            // const response = await fetch("http://localhost:5000/upload", {
+            const response = await fetch("https://gdfileupload.onrender.com/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                setFileId(data.fileId);
+                setFileName(data.fileName);  // Set the original filename
+                alert("File uploaded successfully!");
+            } else {
+                alert("Upload failed!");
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
+        }
+    };
+
+    const handleDownload = async () => {
+        if (!fileId) {
+            alert("No file available to download.");
+            return;
+        }
+
+        try {
+            // const response = await fetch(`http://localhost:5000/download/${fileId}`);
+            const response = await fetch(`https://gdfileupload.onrender.com/download/${fileId}`);
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = downloadUrl;
+            a.download = fileName;  // Use the original filename for download
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        } catch (error) {
+            console.error("Error downloading file:", error);
+        }
     };
 
     return (
-        <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
-            <input
-                type="file"
-                accept=".pdf"
-                onChange={(e) => setFile(e.target.files[0])}
-                className="mb-4 w-full"
-            />
-            <button
-                onClick={handleFileUpload}
-                disabled={!file}
-                className="w-full bg-blue-500 text-white py-2 rounded flex items-center justify-center"
-            >
-                {/*<GoogleIcon className="mr-2" /> Upload to Google Drive*/}
-                Upload to Google Drive
-                {process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}
+        <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md">
+            <h1 className="text-xl font-bold mb-4">Upload a File</h1>
+            <input type="file" onChange={handleFileChange} className="mb-4" />
+            <button onClick={handleUpload} className="bg-blue-500 text-white px-4 py-2 rounded">
+                Upload
             </button>
-            {uploadStatus && (
-                <p className="mt-4 text-center text-sm">
-                    {uploadStatus}
-                </p>
+
+            {fileId && (
+                <div className="mt-4">
+                    <button onClick={handleDownload} className="bg-green-500 text-white px-4 py-2 rounded">
+                        Download File
+                    </button>
+                </div>
             )}
         </div>
     );
 }
-
-
