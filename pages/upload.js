@@ -42,6 +42,7 @@ export default function GoogleDriveUpload() {
             >
                 {/*<GoogleIcon className="mr-2" /> Upload to Google Drive*/}
                 Upload to Google Drive
+                {process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}
             </button>
             {uploadStatus && (
                 <p className="mt-4 text-center text-sm">
@@ -51,3 +52,5 @@ export default function GoogleDriveUpload() {
         </div>
     );
 }
+
+
