@@ -92,6 +92,7 @@ const DoctorProfilePage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
     const [isImageModalOpen, setIsImageModalOpen] = useState(false)
     const router = useRouter()
+    const [formData, setFormData] = useState();
 
     useEffect(() => {
         const fetchDoctorDetails = async () => {
@@ -113,6 +114,13 @@ const DoctorProfilePage = () => {
             return
         }
         setUpdatedDetails((prev) => {
+            if (name === "consultationFees") {
+                // Convert consultationFees to a number if it's a valid value
+                return {
+                    ...prev,
+                    [name]: value ? Number(value) : 0, // Default to 0 if value is empty
+                };
+            }
             if (name === "state" || name === "city") {
                 return {
                     ...prev,

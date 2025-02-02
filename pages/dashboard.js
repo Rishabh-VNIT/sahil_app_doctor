@@ -68,18 +68,20 @@ const Dashboard = () => {
                                 {isSidebarOpen ? <Menu /> : <Layout />}
                             </button>
                         </div>
-                        <DashboardStats totalUpcomingAppointments={totalUpcomingAppointments} totalSchedules={schedules.length}/>
+                        <DashboardStats totalUpcomingAppointments={totalUpcomingAppointments} totalSchedules={schedules.length} />
                         <div ref={appointmentsRef}>
-                            <UpcomingAppointments setUpcomingAppointmentsCount={setUpcomingAppointmentsCount}/>
+                            {/* Pass the setUpcomingAppointmentsCount function */}
+                            <UpcomingAppointments setUpcomingAppointmentsCount={setUpcomingAppointmentsCount} />
                         </div>
                         <div ref={scheduleManagerRef}>
-                            <DoctorScheduleManager schedules={schedules} setSchedules={setSchedules}/>
+                            <DoctorScheduleManager schedules={schedules} setSchedules={setSchedules} setUpcomingAppointmentsCount={setUpcomingAppointmentsCount}/>
                         </div>
                     </div>
                 </main>
             </div>
         </div>
     );
+
 };
 
 export default withAuth(Dashboard);

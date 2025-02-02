@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { db } from "@/firebase/config"
 import { doc, getDoc } from "firebase/firestore"
-import { User, Mail, Calendar, Phone, FileText, Loader2 } from "lucide-react"
+import { User, Mail, Calendar, Phone, FileText, Loader2, UserPlus } from "lucide-react"
 import { motion } from "framer-motion"
 
 const InfoItem = ({ icon: Icon, label, value }) => (
@@ -16,7 +16,7 @@ const InfoItem = ({ icon: Icon, label, value }) => (
     </div>
 )
 
-export default function PatientSearch({ uid, description }) {
+export default function PatientSearch({ uid, description, patientName }) {
     const [patient, setPatient] = useState(null)
     const [error, setError] = useState(null)
 
@@ -74,8 +74,17 @@ export default function PatientSearch({ uid, description }) {
                             <User className="w-6 h-6 text-blue-500" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-semibold text-gray-800">{patient.name}</h2>
-                            <p className="text-sm text-gray-500">{patient.gender}</p>
+                            <h2 className="text-xl font-semibold text-gray-800">{patientName}</h2>
+                            <p className="text-sm text-gray-500">Patient</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
+                        <div className="bg-green-100 rounded-full p-3">
+                            <UserPlus className="w-6 h-6 text-green-500" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-medium text-gray-800">{patient.name}</h2>
+                            <p className="text-sm text-gray-500">Booked by</p>
                         </div>
                     </div>
                     <InfoItem icon={Mail} label="Email" value={patient.email} />

@@ -4,39 +4,12 @@ import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth"
 import { setDoc, doc } from "firebase/firestore"
-import { auth, firestore } from "../firebase/config"
-import { Eye, EyeOff, UserPlus, Mail } from 'lucide-react'
-
-const states = [
-    { name: "Andhra Pradesh", cities: ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Tirupati", "Kakinada", "Rajahmundry", "Eluru"] },
-    { name: "Arunachal Pradesh", cities: ["Itanagar", "Naharlagun", "Tawang", "Ziro", "Aalo", "Bomdila", "Tezu"] },
-    { name: "Assam", cities: ["Guwahati", "Jorhat", "Silchar", "Dibrugarh", "Tinsukia", "Nagaon", "Bongaigaon", "Tezpur"] },
-    { name: "Bihar", cities: ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Munger", "Darbhanga", "Saharsa", "Purnia"] },
-    { name: "Chhattisgarh", cities: ["Raipur", "Bilaspur", "Durg", "Korba", "Raigarh", "Jagdalpur", "Ambikapur", "Rajim"] },
-    { name: "Goa", cities: ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda", "Quepem", "Cortalim", "Canacona"] },
-    { name: "Gujarat", cities: ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Gandhinagar", "Anand", "Junagadh"] },
-    { name: "Haryana", cities: ["Chandigarh", "Faridabad", "Gurugram", "Ambala", "Panipat", "Karnal", "Hisar", "Rohtak"] },
-    { name: "Himachal Pradesh", cities: ["Shimla", "Manali", "Kullu", "Dharamsala", "Kangra", "Mandi", "Solan", "Bilaspur"] },
-    { name: "Jharkhand", cities: ["Ranchi", "Jamshedpur", "Dhanbad", "Hazaribagh", "Bokaro", "Giridih", "Chaibasa", "Deoghar"] },
-    { name: "Karnataka", cities: ["Bangalore", "Mysore", "Mangalore", "Hubli", "Belgaum", "Bijapur", "Gulbarga", "Shimoga"] },
-    { name: "Kerala", cities: ["Thiruvananthapuram", "Kochi", "Kozhikode", "Kollam", "Thrissur", "Kannur", "Palakkad", "Alappuzha"] },
-    { name: "Madhya Pradesh", cities: ["Bhopal", "Indore", "Gwalior", "Jabalpur", "Ujjain", "Sagar", "Ratlam", "Satna"] },
-    { name: "Maharashtra", cities: ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad", "Thane", "Kolhapur", "Solapur"] },
-    { name: "Manipur", cities: ["Imphal", "Thoubal", "Churachandpur", "Bishnupur", "Ukhrul", "Senapati", "Chandel"] },
-    { name: "Meghalaya", cities: ["Shillong", "Tura", "Jowai", "Nongstoin", "Williamnagar", "Nartiang"] },
-    { name: "Mizoram", cities: ["Aizawl", "Lunglei", "Champhai", "Siaha", "Serchhip", "Lawngtlai"] },
-    { name: "Nagaland", cities: ["Kohima", "Dimapur", "Mokokchung", "Wokha", "Zunheboto", "Phek"] },
-    { name: "Odisha", cities: ["Bhubaneswar", "Cuttack", "Berhampur", "Rourkela", "Sambalpur", "Balasore", "Bargarh", "Jeypore"] },
-    { name: "Punjab", cities: ["Chandigarh", "Amritsar", "Ludhiana", "Jalandhar", "Patiala", "Bathinda", "Moga", "Hoshiarpur"] },
-    { name: "Rajasthan", cities: ["Jaipur", "Udaipur", "Jodhpur", "Kota", "Ajmer", "Bikaner", "Alwar", "Bhilwara"] },
-    { name: "Sikkim", cities: ["Gangtok", "Namchi", "Mangan", "Pakyong", "Rangpo"] },
-    { name: "Tamil Nadu", cities: ["Chennai", "Coimbatore", "Madurai", "Trichy", "Salem", "Tirunelveli", "Erode", "Vellore"] },
-    { name: "Telangana", cities: ["Hyderabad", "Warangal", "Khammam", "Karimnagar", "Nizamabad", "Mahabubnagar", "Nalgonda"] },
-    { name: "Tripura", cities: ["Agartala", "Udaipur", "Dharmanagar", "Sabroom", "Kailasahar"] },
-    { name: "Uttar Pradesh", cities: ["Lucknow", "Kanpur", "Agra", "Varanasi", "Allahabad", "Meerut", "Ghaziabad", "Bareilly"] },
-    { name: "Uttarakhand", cities: ["Dehradun", "Haridwar", "Nainital", "Rishikesh", "Haldwani", "Roorkee"] },
-    { name: "West Bengal", cities: ["Kolkata", "Siliguri", "Durgapur", "Asansol", "Kharagpur", "Howrah", "Burdwan", "Jalpaiguri"] },
-];
+import { auth, firestore } from "@/firebase/config"
+import { Eye, EyeOff, UserPlus, Mail, Users, Clock } from 'lucide-react'
+import {Label} from "@/components/ui/label";
+import {Input} from "@/components/ui/input";
+import {Checkbox} from "@/components/ui/checkbox";
+import {weekDays, states} from "@/lib/constants";
 
 const SignUp = () => {
     const specialties = [
@@ -67,7 +40,13 @@ const SignUp = () => {
         address: "",
         state: "",
         city: "",
+        experienceInYears: "",
+        about: "",
         consultationFees: "",
+        patientsTreated: "",
+        workingDays: [],
+        workingHours: { start: "09:00", end: "17:00" },
+
     })
     const [showPassword, setShowPassword] = useState(false)
     const [error, setError] = useState("")
@@ -75,10 +54,19 @@ const SignUp = () => {
     const [verificationEmail, setVerificationEmail] = useState("")
     const router = useRouter()
 
+    // const handleChange = (e) => {
+    //     const { name, value } = e.target
+    //     setFormData({ ...formData, [name]: value })
+    // }
+
     const handleChange = (e) => {
-        const { name, value } = e.target
-        setFormData({ ...formData, [name]: value })
-    }
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: name === "consultationFees" || name === "patientsTreated" || name === "experienceInYears"  ? Number(value) : value,
+        });
+    };
+
 
     const handleVerifyEmail = async (e) => {
         e.preventDefault()
@@ -96,6 +84,23 @@ const SignUp = () => {
         } catch (error) {
             setError("Failed to process email verification. Please try again.")
         }
+    }
+
+    const handleWorkingDaysChange = (day) => {
+        setFormData((prev) => ({
+            ...prev,
+            workingDays: prev.workingDays.includes(day)
+                ? prev.workingDays.filter((d) => d !== day)
+                : [...prev.workingDays, day],
+        }))
+    }
+
+    const handleWorkingHoursChange = (e) => {
+        const { name, value } = e.target
+        setFormData((prev) => ({
+            ...prev,
+            workingHours: { ...prev.workingHours, [name]: value },
+        }))
     }
 
     const handleSubmit = async (e) => {
@@ -334,6 +339,45 @@ const SignUp = () => {
                         </div>
                     </div>
 
+
+                    <div className="mb-4">
+                        <label htmlFor="patientsTreated" className="block text-gray-700 text-sm font-bold mb-2">
+                            Patients Treated
+                        </label>
+                        <div className="relative">
+                            <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"/>
+                            <input
+                                type="number"
+                                id="patientsTreated"
+                                name="patientsTreated"
+                                value={formData.patientsTreated}
+                                onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-3 px-10 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            />
+                        </div>
+                    </div>
+
+
+                    <div className="mb-4">
+                        <label htmlFor="experienceInYears" className="block text-gray-700 text-sm font-bold mb-2">
+                            Experience In Years
+                        </label>
+                        <div className="relative">
+                            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"/>
+                            <input
+                                type="number"
+                                id="experienceInYears"
+                                name="experienceInYears"
+                                value={formData.experienceInYears}
+                                onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-3 px-10 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            />
+                        </div>
+                    </div>
+
+
                     <div className="mb-4">
                         <label htmlFor="medicalLicenseNumber" className="block text-gray-700 text-sm font-bold mb-2">
                             Medical License Number
@@ -343,6 +387,21 @@ const SignUp = () => {
                             id="medicalLicenseNumber"
                             name="medicalLicenseNumber"
                             value={formData.medicalLicenseNumber}
+                            onChange={handleChange}
+                            className="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            required
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label htmlFor="about" className="block text-gray-700 text-sm font-bold mb-2">
+                            About Yourself
+                        </label>
+                        <input
+                            type="text"
+                            id="about"
+                            name="about"
+                            value={formData.about}
                             onChange={handleChange}
                             className="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             required
@@ -410,17 +469,53 @@ const SignUp = () => {
                         </select>
                     </div>
 
-                    <div>
-                        <button
-                            type="submit"
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
-                        >
+                    <div className="mb-6">
+                        <div className="space-y-2">
+                            <Label>Working Days (Optional)</Label>
+                            <p className="text-sm text-gray-500">For profile display. You can set custom schedules
+                                later.</p>
+                            <div className="flex flex-wrap gap-2">
+                                {weekDays.map((day) => (
+                                    <div key={day} className="flex items-center">
+                                        <Checkbox
+                                            id={day}
+                                            checked={formData.workingDays.includes(day)}
+                                            onCheckedChange={() => handleWorkingDaysChange(day)}
+                                        />
+                                        <label htmlFor={day} className="ml-2 text-sm">
+                                            {day}
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div className="mb-6">
+                        <div className="space-y-2">
+                            <Label>Working Hours (Optional)</Label>
+                            <div className="flex gap-2">
+                                <Input type="time" name="start" value={formData.workingHours.start}
+                                       onChange={handleWorkingHoursChange}/>
+                                <span className="self-center">to</span>
+                                <Input type="time" name="end" value={formData.workingHours.end}
+                                       onChange={handleWorkingHoursChange}/>
+                            </div>
+                        </div>
+                    </div>
+
+                        <div>
+                            <button
+                                type="submit"
+                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+                            >
                             <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                                 <UserPlus className="h-5 w-5 text-blue-500 group-hover:text-blue-400"/>
                             </span>
-                            Sign Up
-                        </button>
-                    </div>
+                                Sign Up
+                            </button>
+                        </div>
                 </form>
                 <p className="text-center text-gray-600 text-sm">
                     Already have an account?{" "}

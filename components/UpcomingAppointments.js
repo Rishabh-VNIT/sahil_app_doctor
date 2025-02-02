@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react"
 import {auth, db} from "@/firebase/config"
-import {collection, doc, getDoc, getDocs, updateDoc} from "firebase/firestore"
+import {collection, doc, getDoc, getDocs, updateDoc, addDoc, serverTimestamp} from "firebase/firestore"
 
 const UpcomingAppointments = ({ setUpcomingAppointmentsCount }) => {
     const [upcomingAppointments, setUpcomingAppointments] = useState([])
@@ -26,14 +26,22 @@ const UpcomingAppointments = ({ setUpcomingAppointmentsCount }) => {
             const scheduleSnapshot = await getDoc(scheduleRef);
             const scheduleData = scheduleSnapshot.data();
 
+            // Find the specific time slot
+            const targetSlot = scheduleData.timeSlots.find(slot => slot.start === slotStart);
+            if (!targetSlot) {
+                throw new Error("Time slot not found");
+            }
+
             // Find and update the specific time slot
             const updatedTimeSlots = scheduleData.timeSlots.map(slot => {
                 if (slot.start === slotStart) {
                     return {
                         ...slot,
-                        status: action === "cancel" ? "Cancelled" : slot.status,
-                        booked: action === "cancel" ? false : slot.booked,
-                        patient: action === "cancel" ? null : slot.patient
+                        booked: false,
+                        patient: null,
+                        status: null,
+                        description: null,
+                        cancelled: [...(slot.cancelled || []), slot.patient]
                     };
                 }
                 return slot;
@@ -42,6 +50,23 @@ const UpcomingAppointments = ({ setUpcomingAppointmentsCount }) => {
             // Update the schedule document with modified time slots
             await updateDoc(scheduleRef, {
                 timeSlots: updatedTimeSlots
+            });
+
+            // Save rejection details to doctor_rejections collection
+            await addDoc(collection(db, 'doctor_rejections'), {
+                doctorId: user.uid,
+                scheduleId: scheduleId,
+                slotStart: slotStart,
+                slotEnd: targetSlot.end,
+                patientId: targetSlot.patient,
+                patientName: targetSlot.patientName,
+                rejectionTime: serverTimestamp(),
+                rejectionReason: 'Doctor Cancelled',
+                appointmentType: scheduleData.type || 'Regular',
+                originalBookingTime: targetSlot.bookingTime || null,
+                specialization: user.specialization || null,
+                clinic: user.clinic || null,
+                status: 'Rejected'
             });
 
             // Refresh appointments after cancellation
