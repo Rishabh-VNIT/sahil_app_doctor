@@ -445,13 +445,13 @@ const DoctorScheduleManager = ({schedules, setSchedules}) => {
                 )
             );
 
-            setMessage("Lab report uploaded and completion recorded successfully!");
+            setMessage("Doctor report uploaded and completion recorded successfully!");
             setStatus("success");
             setUploadDialog(false);
 
         } catch (error) {
-            console.error("Error completing lab test:", error);
-            setMessage("Error completing lab test. Please try again later.");
+            console.error("Error completing Doctor test:", error);
+            setMessage("Error completing Doctor test. Please try again later.");
             setStatus("error");
         }
     };
@@ -480,7 +480,7 @@ const DoctorScheduleManager = ({schedules, setSchedules}) => {
             console.log(slot)
             const getFileExtension = (fileName) => fileName.slice(fileName.lastIndexOf('.') + 1);
 
-            const newFileName = `Lab report for ${slot.patientName} ${Date.now()} .${getFileExtension(file.name)}`;
+            const newFileName = `Patient Treatment report for ${slot.patientName} ${Date.now()} .${getFileExtension(file.name)}`;
             const orignalName = file.name;
             const renamedFile = new File([file], newFileName, { type: file.type });
             const formData = new FormData();
