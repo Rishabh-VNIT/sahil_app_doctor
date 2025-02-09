@@ -7,54 +7,29 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {states} from "@/lib/constants"
 
-const states = [
-    { name: "Andhra Pradesh", cities: ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Tirupati", "Kakinada", "Rajahmundry", "Eluru"] },
-    { name: "Arunachal Pradesh", cities: ["Itanagar", "Naharlagun", "Tawang", "Ziro", "Aalo", "Bomdila", "Tezu"] },
-    { name: "Assam", cities: ["Guwahati", "Jorhat", "Silchar", "Dibrugarh", "Tinsukia", "Nagaon", "Bongaigaon", "Tezpur"] },
-    { name: "Bihar", cities: ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Munger", "Darbhanga", "Saharsa", "Purnia"] },
-    { name: "Chhattisgarh", cities: ["Raipur", "Bilaspur", "Durg", "Korba", "Raigarh", "Jagdalpur", "Ambikapur", "Rajim"] },
-    { name: "Goa", cities: ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda", "Quepem", "Cortalim", "Canacona"] },
-    { name: "Gujarat", cities: ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Gandhinagar", "Anand", "Junagadh"] },
-    { name: "Haryana", cities: ["Chandigarh", "Faridabad", "Gurugram", "Ambala", "Panipat", "Karnal", "Hisar", "Rohtak"] },
-    { name: "Himachal Pradesh", cities: ["Shimla", "Manali", "Kullu", "Dharamsala", "Kangra", "Mandi", "Solan", "Bilaspur"] },
-    { name: "Jharkhand", cities: ["Ranchi", "Jamshedpur", "Dhanbad", "Hazaribagh", "Bokaro", "Giridih", "Chaibasa", "Deoghar"] },
-    { name: "Karnataka", cities: ["Bangalore", "Mysore", "Mangalore", "Hubli", "Belgaum", "Bijapur", "Gulbarga", "Shimoga"] },
-    { name: "Kerala", cities: ["Thiruvananthapuram", "Kochi", "Kozhikode", "Kollam", "Thrissur", "Kannur", "Palakkad", "Alappuzha"] },
-    { name: "Madhya Pradesh", cities: ["Bhopal", "Indore", "Gwalior", "Jabalpur", "Ujjain", "Sagar", "Ratlam", "Satna"] },
-    { name: "Maharashtra", cities: ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad", "Thane", "Kolhapur", "Solapur"] },
-    { name: "Manipur", cities: ["Imphal", "Thoubal", "Churachandpur", "Bishnupur", "Ukhrul", "Senapati", "Chandel"] },
-    { name: "Meghalaya", cities: ["Shillong", "Tura", "Jowai", "Nongstoin", "Williamnagar", "Nartiang"] },
-    { name: "Mizoram", cities: ["Aizawl", "Lunglei", "Champhai", "Siaha", "Serchhip", "Lawngtlai"] },
-    { name: "Nagaland", cities: ["Kohima", "Dimapur", "Mokokchung", "Wokha", "Zunheboto", "Phek"] },
-    { name: "Odisha", cities: ["Bhubaneswar", "Cuttack", "Berhampur", "Rourkela", "Sambalpur", "Balasore", "Bargarh", "Jeypore"] },
-    { name: "Punjab", cities: ["Chandigarh", "Amritsar", "Ludhiana", "Jalandhar", "Patiala", "Bathinda", "Moga", "Hoshiarpur"] },
-    { name: "Rajasthan", cities: ["Jaipur", "Udaipur", "Jodhpur", "Kota", "Ajmer", "Bikaner", "Alwar", "Bhilwara"] },
-    { name: "Sikkim", cities: ["Gangtok", "Namchi", "Mangan", "Pakyong", "Rangpo"] },
-    { name: "Tamil Nadu", cities: ["Chennai", "Coimbatore", "Madurai", "Trichy", "Salem", "Tirunelveli", "Erode", "Vellore"] },
-    { name: "Telangana", cities: ["Hyderabad", "Warangal", "Khammam", "Karimnagar", "Nizamabad", "Mahabubnagar", "Nalgonda"] },
-    { name: "Tripura", cities: ["Agartala", "Udaipur", "Dharmanagar", "Sabroom", "Kailasahar"] },
-    { name: "Uttar Pradesh", cities: ["Lucknow", "Kanpur", "Agra", "Varanasi", "Allahabad", "Meerut", "Ghaziabad", "Bareilly"] },
-    { name: "Uttarakhand", cities: ["Dehradun", "Haridwar", "Nainital", "Rishikesh", "Haldwani", "Roorkee"] },
-    { name: "West Bengal", cities: ["Kolkata", "Siliguri", "Durgapur", "Asansol", "Kharagpur", "Howrah", "Burdwan", "Jalpaiguri"] },
-];
-
-const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData }) => {
+const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData, user }) => {
     const [hospital, setHospital] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
     const [editedHospital, setEditedHospital] = useState({})
     const [isImageModalOpen, setIsImageModalOpen] = useState(false)
     const [availableCities, setAvailableCities] = useState([])
+    const [doctorDetails, setDoctorDetails] = useState("default")
 
     useEffect(() => {
         const fetchHospitalDetails = async () => {
             try {
-                const hospitalRef = doc(db, "hospitals", hospitalUid)
+                const hospitalRef = doc(db, "doctors", hospitalUid)
                 const hospitalSnapshot = await getDoc(hospitalRef)
 
                 if (hospitalSnapshot.exists()) {
-                    const hospitalData = hospitalSnapshot.data()
-                    setHospital(hospitalData)
+                    // const hospitalData = hospitalSnapshot.data()
+                    // setHospital(hospitalData)
+                    const hospitalData = hospitalSnapshot.data();
+                    const hospitalId = hospitalSnapshot.id; // Extract UID
+
+                    setHospital({ ...hospitalData, uid: hospitalId });
                     setEditedHospital(hospitalData)
                     updateAvailableCities(hospitalData.state)
                 }
@@ -64,6 +39,19 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData }) => {
         }
 
         fetchHospitalDetails()
+
+
+        const fetchDoctorDetails = async () => {
+            if (user?.uid) {
+                const docRef = doc(db, "doctors", user.uid)
+                const docSnap = await getDoc(docRef)
+                console.log(docSnap.data())
+                if (docSnap.exists()) {
+                    setDoctorDetails(docSnap.data())
+                }
+            }
+        }
+        fetchDoctorDetails()
     }, [hospitalUid])
 
     const updateAvailableCities = (stateName) => {
@@ -80,21 +68,44 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData }) => {
 
     const handleUnlinkHospital = async () => {
         try {
-            const userRef = doc(db, "doctors", userId)
-            await updateDoc(userRef, {
-                hospitalUid: null,
+            if (!user?.uid) {
+                console.error("User ID not found!")
+                return
+            }
+            console.log(user.uid)
+            const hospitalRef = doc(db, "doctors", user.uid)
+
+            // Step 1: Remove the field completely
+            await updateDoc(hospitalRef, {
+                doctorUid: null,
             })
 
+            console.log("Doctor unlinked from hospital successfully!")
             refreshHospitalData()
         } catch (error) {
             console.error("Error unlinking hospital:", error)
         }
     }
 
+
+    const handleLinkHospital = async () => {
+        try {
+            console.log(userId  )
+            const userRef = doc(db, "hospitals", userId)
+            await updateDoc(userRef, {
+                doctorUid : hospitalUid
+            })
+
+            refreshHospitalData()
+        } catch (error) {
+            console.error("Error linking hospital:", error)
+        }
+    }
+
     const handleSaveHospital = async (e) => {
         e.preventDefault()
         try {
-            const hospitalRef = doc(db, "hospitals", hospitalUid)
+            const hospitalRef = doc(db, "doctors", hospitalUid)
             await updateDoc(hospitalRef, editedHospital)
 
             setHospital(editedHospital)
@@ -123,7 +134,7 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData }) => {
                 }
                 setEditedHospital(updatedHospital)
                 setHospital(updatedHospital)
-                await updateDoc(doc(db, "hospitals", hospitalUid), { profileImage: data.secure_url })
+                await updateDoc(doc(db, "doctors", hospitalUid), { profileImage: data.secure_url })
             }
         } catch (error) {
             console.error("Error uploading image to Cloudinary:", error)
@@ -131,12 +142,22 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData }) => {
     }
 
     const handleInputChange = (field, value) => {
-        setEditedHospital((prev) => ({ ...prev, [field]: value }))
-        if (field === "state") {
-            updateAvailableCities(value)
-            setEditedHospital((prev) => ({ ...prev, city: "" }))
+        let updatedValue = value;
+
+        // Convert specific fields to numbers
+        if (["experienceInYears", "consultationFees", "medicalLicenseNumber"].includes(field)) {
+            updatedValue = value === "" ? "" : Number(value);
+            if (isNaN(updatedValue)) return; // Prevent invalid number inputs
         }
-    }
+
+        setEditedHospital((prev) => ({ ...prev, [field]: updatedValue }));
+
+        if (field === "state") {
+            updateAvailableCities(value);
+            setEditedHospital((prev) => ({ ...prev, city: "" }));
+        }
+    };
+
 
     if (!hospital) return <div className="flex items-center justify-center h-screen">Loading...</div>
 
@@ -144,16 +165,21 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData }) => {
         <div className="min-h-screen bg-gray-100 p-8">
             <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
                 <div className="flex justify-between items-center mb-8">
-                    <h2 className="text-3xl font-bold text-gray-800">Hospital Details</h2>
+                    <h2 className="text-3xl font-bold text-gray-800">Doctor Details</h2>
                     <div>
                         <Button onClick={handleEditToggle} variant={isEditing ? "destructive" : "default"} className="mr-2">
                             {isEditing ? <X className="mr-2" /> : <Edit className="mr-2" />}
                             {isEditing ? "Cancel" : "Edit"}
                         </Button>
                         {!isEditing && (
+                            doctorDetails.doctorUid === hospital.uid ?
                             <Button onClick={handleUnlinkHospital} variant="outline">
-                                Unlink Hospital
-                            </Button>
+                                Unlink Doctor
+                            </Button> :
+                                <Button onClick={handleLinkHospital} variant="outline">
+                                    Link Doctor
+                                </Button>
+
                         )}
                     </div>
                 </div>
@@ -182,9 +208,63 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData }) => {
                         <div>
                             <Label htmlFor="name">Hospital Name</Label>
                             <Input
-                                id="name"
-                                value={editedHospital.name}
-                                onChange={(e) => handleInputChange("name", e.target.value)}
+                                id="fullName"
+                                value={editedHospital.fullName}
+                                onChange={(e) => handleInputChange("fullName", e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                                id="email"
+                                value={editedHospital.email}
+                                onChange={(e) => handleInputChange("email", e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="specialty">Speciality</Label>
+                            <Input
+                                id="specialty"
+                                value={editedHospital.specialty}
+                                onChange={(e) => handleInputChange("specialty", e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="experienceInYears">Experience In Years</Label>
+                            <Input
+                                id="experienceInYears"
+                                value={editedHospital.experienceInYears}
+                                onChange={(e) => handleInputChange("experienceInYears", e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="consultationFees">Consultation Fees</Label>
+                            <Input
+                                id="consultationFees"
+                                value={editedHospital.consultationFees}
+                                onChange={(e) => handleInputChange("consultationFees", e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="medicalLicenseNumber">Medical License Number</Label>
+                            <Input
+                                id="medicalLicenseNumber"
+                                value={editedHospital.medicalLicenseNumber}
+                                onChange={(e) => handleInputChange("medicalLicenseNumber", e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="about">About</Label>
+                            <Input
+                                id="about"
+                                value={editedHospital.about}
+                                onChange={(e) => handleInputChange("about", e.target.value)}
                                 required
                             />
                         </div>
@@ -199,9 +279,10 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData }) => {
                         </div>
                         <div>
                             <Label htmlFor="state">State</Label>
-                            <Select value={editedHospital.state} onValueChange={(value) => handleInputChange("state", value)}>
+                            <Select value={editedHospital.state}
+                                    onValueChange={(value) => handleInputChange("state", value)}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select State" />
+                                    <SelectValue placeholder="Select State"/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {states.map((state) => (
@@ -220,7 +301,7 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData }) => {
                                 disabled={!editedHospital.state}
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select City" />
+                                    <SelectValue placeholder="Select City"/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {availableCities.map((city) => (
@@ -232,16 +313,41 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData }) => {
                             </Select>
                         </div>
                         <Button type="submit" className="w-full">
-                            <Save className="mr-2" />
+                            <Save className="mr-2"/>
                             Save Changes
                         </Button>
                     </form>
                 ) : (
                     <div className="space-y-6">
                         <div>
-                            <Label className="text-gray-600">Hospital Name</Label>
-                            <p className="text-xl font-medium">{hospital.name}</p>
+                            <Label className="text-gray-600">Doctor Name</Label>
+                            <p className="text-xl font-medium">{hospital.fullName}</p>
                         </div>
+                        <div>
+                            <Label className="text-gray-600">Email</Label>
+                            <p className="text-xl font-medium">{hospital.email}</p>
+                        </div>
+                        <div>
+                            <Label className="text-gray-600">Specialty</Label>
+                            <p className="text-xl font-medium">{hospital.specialty}</p>
+                        </div>
+                        <div>
+                            <Label className="text-gray-600">Experience (Years)</Label>
+                            <p className="text-xl font-medium">{hospital.experienceInYears}</p>
+                        </div>
+                        <div>
+                            <Label className="text-gray-600">Consultation Fees (₹)</Label>
+                            <p className="text-xl font-medium">{hospital.consultationFees}</p>
+                        </div>
+                        <div>
+                            <Label className="text-gray-600">Medical License Number</Label>
+                            <p className="text-xl font-medium">{hospital.medicalLicenseNumber}</p>
+                        </div>
+                        <div>
+                            <Label className="text-gray-600">About</Label>
+                            <p className="text-xl font-medium">{hospital.about}</p>
+                        </div>
+
                         <div>
                             <Label className="text-gray-600">Address</Label>
                             <p className="text-xl font-medium">{hospital.address}</p>

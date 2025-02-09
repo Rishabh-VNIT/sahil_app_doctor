@@ -10,9 +10,25 @@ import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Checkbox} from "@/components/ui/checkbox";
 import {weekDays, states} from "@/lib/constants";
-import {specialties} from "@/lib/constants";
 
 const SignUp = () => {
+    const specialties = [
+        "Cardiology",
+        "Dermatology",
+        "Neurology",
+        "Pediatrics",
+        "Psychiatry",
+        "Radiology",
+        "Surgery",
+        "Orthopedics",
+        "General Medicine",
+        "Ophthalmology",
+        "Gastroenterology",
+        "Anesthesia",
+        "Pathology",
+        "Obstetrics and Gynecology",
+        "ENT (Ear, Nose, and Throat)",
+    ];
 
     const [formData, setFormData] = useState({
         email: "",
@@ -104,7 +120,7 @@ const SignUp = () => {
 
             // Create user document in Firestore
             const { email, password, state, city, ...doctorData } = formData
-            await setDoc(doc(firestore, "doctors", userCredential.user.uid), {
+            await setDoc(doc(firestore, "hospitals", userCredential.user.uid), {
                 ...doctorData,
                 email: formData.email, // Store email in Firestore
                 location: {
@@ -134,7 +150,7 @@ const SignUp = () => {
 
             if (auth.currentUser?.emailVerified) {
                 // Update Firestore document to mark email as verified
-                await setDoc(doc(firestore, "doctors", auth.currentUser.uid),
+                await setDoc(doc(firestore, "hospitals", auth.currentUser.uid),
                     { emailVerified: true },
                     { merge: true }
                 )
@@ -188,7 +204,7 @@ const SignUp = () => {
                     className="bg-white shadow-2xl rounded-lg px-12 pt-10 pb-8 mb-4"
                 >
                     <h2 className="text-3xl font-extrabold text-gray-900 mb-6 text-center">
-                        Doctor Sign-Up
+                        Hospital Sign-Up
                     </h2>
                     {error && (
                         <div className="mb-4 text-sm text-red-600 bg-red-100 border border-red-400 rounded p-3">
@@ -240,152 +256,14 @@ const SignUp = () => {
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="fullName" className="block text-gray-700 text-sm font-bold mb-2">
+                        <label htmlFor="hospitalName" className="block text-gray-700 text-sm font-bold mb-2">
                             Hospital Name
                         </label>
                         <input
                             type="text"
                             id="fullName"
                             name="fullName"
-                            value={formData.fullName}
-                            onChange={handleChange}
-                            className="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required
-                        />
-                    </div>
-
-                    {/*<div className="mb-4">*/}
-                    {/*    <label htmlFor="specialty" className="block text-gray-700 text-sm font-bold mb-2">*/}
-                    {/*        Specialty*/}
-                    {/*    </label>*/}
-                    {/*    <input*/}
-                    {/*        type="text"*/}
-                    {/*        id="specialty"*/}
-                    {/*        name="specialty"*/}
-                    {/*        value={formData.specialty}*/}
-                    {/*        onChange={handleChange}*/}
-                    {/*        className="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"*/}
-                    {/*        required*/}
-                    {/*    />*/}
-                    {/*</div>*/}
-
-                    <div className="mb-4">
-                        <label htmlFor="specialty" className="block text-gray-700 text-sm font-bold mb-2">
-                            Specialty
-                        </label>
-                        <select
-                            id="specialty"
-                            name="specialty"
-                            value={formData.specialty}
-                            onChange={handleChange}
-                            className="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required
-                        >
-                            <option value="">Select a specialty</option>
-                            {specialties.map((specialty, index) => (
-                                <option key={index} value={specialty}>
-                                    {specialty}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="mb-4">
-                        <label htmlFor="practiceType" className="block text-gray-700 text-sm font-bold mb-2">
-                            Practice Type
-                        </label>
-                        <input
-                            type="text"
-                            id="practiceType"
-                            name="practiceType"
-                            value={formData.practiceType}
-                            onChange={handleChange}
-                            className="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required
-                        />
-                    </div>
-
-                    <div className="mb-4">
-                        <label htmlFor="consultationFees" className="block text-gray-700 text-sm font-bold mb-2">
-                            Consultation Fees (₹)
-                        </label>
-                        <div className="relative">
-                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">₹</span>
-                            <input
-                                type="number"
-                                id="consultationFees"
-                                name="consultationFees"
-                                value={formData.consultationFees}
-                                onChange={handleChange}
-                                className="shadow appearance-none border rounded w-full py-3 px-10 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            />
-                        </div>
-                    </div>
-
-
-                    <div className="mb-4">
-                        <label htmlFor="patientsTreated" className="block text-gray-700 text-sm font-bold mb-2">
-                            Patients Treated
-                        </label>
-                        <div className="relative">
-                            <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"/>
-                            <input
-                                type="number"
-                                id="patientsTreated"
-                                name="patientsTreated"
-                                value={formData.patientsTreated}
-                                onChange={handleChange}
-                                className="shadow appearance-none border rounded w-full py-3 px-10 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            />
-                        </div>
-                    </div>
-
-
-                    <div className="mb-4">
-                        <label htmlFor="experienceInYears" className="block text-gray-700 text-sm font-bold mb-2">
-                            Experience In Years
-                        </label>
-                        <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"/>
-                            <input
-                                type="number"
-                                id="experienceInYears"
-                                name="experienceInYears"
-                                value={formData.experienceInYears}
-                                onChange={handleChange}
-                                className="shadow appearance-none border rounded w-full py-3 px-10 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            />
-                        </div>
-                    </div>
-
-
-                    <div className="mb-4">
-                        <label htmlFor="medicalLicenseNumber" className="block text-gray-700 text-sm font-bold mb-2">
-                            Medical License Number
-                        </label>
-                        <input
-                            type="text"
-                            id="medicalLicenseNumber"
-                            name="medicalLicenseNumber"
-                            value={formData.medicalLicenseNumber}
-                            onChange={handleChange}
-                            className="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required
-                        />
-                    </div>
-
-                    <div className="mb-4">
-                        <label htmlFor="about" className="block text-gray-700 text-sm font-bold mb-2">
-                            About Yourself
-                        </label>
-                        <input
-                            type="text"
-                            id="about"
-                            name="about"
-                            value={formData.about}
+                            value={formData.hospitalName}
                             onChange={handleChange}
                             className="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             required
@@ -453,53 +331,19 @@ const SignUp = () => {
                         </select>
                     </div>
 
-                    <div className="mb-6">
-                        <div className="space-y-2">
-                            <Label>Working Days (Optional)</Label>
-                            <p className="text-sm text-gray-500">For profile display. You can set custom schedules
-                                later.</p>
-                            <div className="flex flex-wrap gap-2">
-                                {weekDays.map((day) => (
-                                    <div key={day} className="flex items-center">
-                                        <Checkbox
-                                            id={day}
-                                            checked={formData.workingDays.includes(day)}
-                                            onCheckedChange={() => handleWorkingDaysChange(day)}
-                                        />
-                                        <label htmlFor={day} className="ml-2 text-sm">
-                                            {day}
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
 
 
-                    <div className="mb-6">
-                        <div className="space-y-2">
-                            <Label>Working Hours (Optional)</Label>
-                            <div className="flex gap-2">
-                                <Input type="time" name="start" value={formData.workingHours.start}
-                                       onChange={handleWorkingHoursChange}/>
-                                <span className="self-center">to</span>
-                                <Input type="time" name="end" value={formData.workingHours.end}
-                                       onChange={handleWorkingHoursChange}/>
-                            </div>
-                        </div>
-                    </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
-                            >
+                    <div>
+                        <button
+                            type="submit"
+                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+                        >
                             <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                                 <UserPlus className="h-5 w-5 text-blue-500 group-hover:text-blue-400"/>
                             </span>
-                                Sign Up
-                            </button>
-                        </div>
+                            Sign Up
+                        </button>
+                    </div>
                 </form>
                 <p className="text-center text-gray-600 text-sm">
                     Already have an account?{" "}

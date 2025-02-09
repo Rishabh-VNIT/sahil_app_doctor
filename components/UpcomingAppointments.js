@@ -10,7 +10,7 @@ const UpcomingAppointments = ({ setUpcomingAppointmentsCount }) => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
                 setUser(user)
-                fetchUpcomingAppointments(user.uid)
+                fetchUpcomingAppointments(user.hospitalUid)
             }
         })
 
@@ -20,7 +20,7 @@ const UpcomingAppointments = ({ setUpcomingAppointmentsCount }) => {
     const handleAppointmentAction = async (scheduleId, slotStart, action) => {
         try {
             // Reference to the specific doctor's schedule document
-            const scheduleRef = doc(db, `doctors/${user.uid}/schedules/${scheduleId}`);
+            const scheduleRef = doc(db, `hospitals/${hospital.uid}/schedules/${scheduleId}`);
 
             // Fetch the current schedule document
             const scheduleSnapshot = await getDoc(scheduleRef);
@@ -70,7 +70,8 @@ const UpcomingAppointments = ({ setUpcomingAppointmentsCount }) => {
             });
 
             // Refresh appointments after cancellation
-            fetchUpcomingAppointments(user.uid);
+            console.log(user.hospitalUid)
+            fetchUpcomingAppointments(user.hospitalUid);
         } catch (error) {
             console.error("Error handling appointment:", error);
         }
@@ -78,17 +79,17 @@ const UpcomingAppointments = ({ setUpcomingAppointmentsCount }) => {
 
     const fetchUpcomingAppointments = async (doctorId) => {
         try {
-            const schedulesRef = collection(db, `doctors/${doctorId}/schedules`)
+            console.log("doctorId", doctorId)
+            const schedulesRef = collection(db, `hospitals/${doctorId}/schedules`)
             const schedulesSnapshot = await getDocs(schedulesRef)
-
             const bookedAppointments = []
-
+            console.log(schedulesSnapshot.docs)
             for (const scheduleDoc of schedulesSnapshot.docs) {
                 const scheduleData = scheduleDoc.data()
                 const timeSlots = scheduleData.timeSlots || []
-
                 for (const slot of timeSlots) {
                     if (slot.booked) {
+                        console.log("Hai kuch booked")
                         const patientId = slot.patient
                         const userRef = doc(db, "users", patientId)
                         const userSnapshot = await getDoc(userRef)

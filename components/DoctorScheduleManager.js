@@ -60,19 +60,62 @@ const DoctorScheduleManager = ({schedules, setSchedules}) => {
     const [expandedSlot, setExpandedSlot] = useState(null);
     const [rejectionDialog, setRejectionDialog] = useState(false);
     const [slotToReject, setSlotToReject] = useState(null);
+    const [hospital, setHospital] = useState(null)
+    const [doctorDetails, setDoctorDetails] = useState("default")
 
     const { user } = useAuth();
 
     useEffect(() => {
-        fetchDoctorSchedules();
+
+        const fetchDoctorAndHospitalDetails = async () => {
+            // if (!user?.uid) return;
+
+            try {
+                const doctorRef = doc(db, "hospitals", user.uid);
+                const doctorSnap = await getDoc(doctorRef);
+
+                if (doctorSnap.exists()) {
+                    const doctorData = doctorSnap.data();
+                    setDoctorDetails(doctorData);
+                    console.log(doctorData)
+                    if (doctorData.doctorUid) {
+                console.log("wow")
+                        const hospitalRef = doc(db, "doctors", doctorData.doctorUid);
+                        const hospitalSnap = await getDoc(hospitalRef);
+
+                        if (hospitalSnap.exists()) {
+                            const hospitalData = hospitalSnap.data();
+                            const hospitalId = hospitalSnap.id;
+
+                            setHospital({ ...hospitalData, uid: hospitalId });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching doctor and hospital details:", error);
+            }
+        };
+
+// Call the function
+        fetchDoctorAndHospitalDetails();
+
+
     }, [user]);
 
+    useEffect(() => {
+        if (hospital?.uid) {
+            fetchDoctorSchedules();
+        }
+    }, [hospital?.uid]);
+
     const fetchDoctorSchedules = async () => {
+        console.log("mera user", user);
         if (!user?.uid) return;
 
         try {
             setLoading(true);
-            const schedulesRef = collection(db, `doctors/${user.uid}/schedules`);
+            console.log(hospital.uid)
+            const schedulesRef = collection(db, `doctors/${hospital.uid}/schedules`);
             const schedulesSnapshot = await getDocs(schedulesRef);
 
             const fetchedSchedules = schedulesSnapshot.docs.map(doc => ({
@@ -131,15 +174,15 @@ const DoctorScheduleManager = ({schedules, setSchedules}) => {
                 setClashDialog(newSchedule);
                 return;
             }
-
-            const dateDocRef = doc(db, `doctors/${user.uid}/schedules/${scheduleForm.date}`);
+console.log(hospital)
+            const dateDocRef = doc(db, `doctors/${hospital.uid}/schedules/${scheduleForm.date}`);
             await setDoc(dateDocRef, newSchedule);
 
-            await addDoc(collection(db, 'lab_schedule_cancellations'), {
-                doctorId: user.uid,
-                scheduleDate: scheduleForm.date,
-                createdAt: serverTimestamp()
-            });
+            // await addDoc(collection(db, 'doctor_schedule_cancellations'), {
+            //     doctorId: user.uid,
+            //     scheduleDate: scheduleForm.date,
+            //     createdAt: serverTimestamp()
+            // });
 
             setSchedules([...schedules, { id: dateDocRef.id, ...newSchedule }]);
             setScheduleForm({ date: "", startTime: "", endTime: "", interval: "" });
@@ -153,7 +196,7 @@ const DoctorScheduleManager = ({schedules, setSchedules}) => {
 
     const handleScheduleDelete = async (scheduleId, date) => {
         try {
-            await addDoc(collection(db, 'lab_schedule_cancellations'), {
+            await addDoc(collection(db, 'doctor_schedule_cancellations'), {
                 doctorId: user.uid,
                 scheduleDate: date,
                 scheduleId: scheduleId,
@@ -161,7 +204,7 @@ const DoctorScheduleManager = ({schedules, setSchedules}) => {
                 createdAt: serverTimestamp()
             });
 
-            await deleteDoc(doc(db, `doctors/${user.uid}/schedules/${scheduleId}`));
+            await deleteDoc(doc(db, `hospitals/${hospital.uid}/schedules/${scheduleId}`));
 
             setSchedules(schedules.filter(s => s.id !== scheduleId));
             setMessage("Schedule deleted successfully");
@@ -249,7 +292,7 @@ const DoctorScheduleManager = ({schedules, setSchedules}) => {
 
     const handleRejectApplication = async (schedule, slot, rejectionReason) => {
         try {
-            const scheduleRef = doc(db, `doctors/${user.uid}/schedules/${schedule.id}`);
+            const scheduleRef = doc(db, `doctors/${hospital.uid}/schedules/${schedule.id}`);
 
             // Update the timeSlots in Firestore
             const updatedTimeSlots = schedule.timeSlots.map((timeSlot) => {
@@ -406,7 +449,7 @@ const DoctorScheduleManager = ({schedules, setSchedules}) => {
     const handleLabReportUploaded = async (fileData, schedule, slot) => {
         try {
             // Update the schedule document
-            const scheduleRef = doc(db, "doctors", user.uid, "schedules", schedule.id);
+            const scheduleRef = doc(db, "hospitals", hospital.uid, "schedules", schedule.id);
             const updatedTimeSlots = schedule.timeSlots.map((timeSlot) => {
                 if (timeSlot.start === slot.start) {
                     return {
@@ -770,7 +813,7 @@ const DoctorScheduleManager = ({schedules, setSchedules}) => {
 
             <h1 className="text-3xl font-semibold mb-8 text-gray-800 flex items-center">
                 <Calendar className="mr-2 text-blue-500" />
-                Lab Schedule Manager
+                Doctors Schedule Manager
             </h1>
 
             <div className="flex flex-col lg:flex-row gap-8">

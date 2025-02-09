@@ -69,10 +69,10 @@ const Dashboard = () => {
                             </button>
                         </div>
                         <DashboardStats totalUpcomingAppointments={totalUpcomingAppointments} totalSchedules={schedules.length} />
-                        <div ref={appointmentsRef}>
-                            {/* Pass the setUpcomingAppointmentsCount function */}
-                            <UpcomingAppointments setUpcomingAppointmentsCount={setUpcomingAppointmentsCount} />
-                        </div>
+                        {/*<div ref={appointmentsRef}>*/}
+                        {/*    /!* Pass the setUpcomingAppointmentsCount function *!/*/}
+                        {/*    <UpcomingAppointments setUpcomingAppointmentsCount={setUpcomingAppointmentsCount} />*/}
+                        {/*</div>*/}
                         <div ref={scheduleManagerRef}>
                             <DoctorScheduleManager schedules={schedules} setSchedules={setSchedules} setUpcomingAppointmentsCount={setUpcomingAppointmentsCount}/>
                         </div>
