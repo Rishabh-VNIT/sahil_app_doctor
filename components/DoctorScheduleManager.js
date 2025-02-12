@@ -449,7 +449,7 @@ console.log(hospital)
     const handleLabReportUploaded = async (fileData, schedule, slot) => {
         try {
             // Update the schedule document
-            const scheduleRef = doc(db, "hospitals", hospital.uid, "schedules", schedule.id);
+            const scheduleRef = doc(db, "doctors", hospital.uid, "schedules", schedule.id);
             const updatedTimeSlots = schedule.timeSlots.map((timeSlot) => {
                 if (timeSlot.start === slot.start) {
                     return {
