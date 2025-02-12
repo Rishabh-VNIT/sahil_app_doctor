@@ -471,7 +471,7 @@ console.log(hospital)
             // Save completion details to lab_form_completion collection
             await addDoc(collection(db, 'doctors_completion'), {
                 completionTime: serverTimestamp(),
-                labId: user.uid,
+                doctorId: hospital.uid,
                 patientId: slot.patient,
                 patientName: slot.patientName,
                 scheduleId: schedule.id,
