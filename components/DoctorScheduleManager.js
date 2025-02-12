@@ -313,13 +313,16 @@ console.log(hospital)
             console.log(rejectionReason);
             // Optional: Add a cancellation record to Firestore
             await addDoc(collection(db, 'doctor_rejections'), {
-                doctorId: user.uid,
-                scheduleId: schedule.id,
-                slotStart: slot.start,
-                slotEnd: slot.end,
+                appointmentType: "Regular",
+                doctorId: hospital.uid,
                 patientId: slot.patient,
-                cancellationReason: rejectionReason,
-                createdAt: serverTimestamp()
+                patientName: slot.patientName,
+                rejectionReason: rejectionReason,
+                rejectionTime: serverTimestamp(),
+                scheduleId: schedule.id,
+                slotEnd: slot.end,
+                slotStart: slot.start,
+                status: "Rejected"
             });
 
             setRejectionDialog(false);
