@@ -11,7 +11,7 @@ import {specialties, states} from "@/lib/constants";
 const DoctorAssociation = ({ user, setDoctorUid, doctorUid }) => {
     const [existingDoctors, setExistingDoctors] = useState([]);
     const [showDoctorForm, setShowDoctorForm] = useState(false);
-    const [doctorData, setDoctorData] = useState({ fullName: "", specialty: "", experienceInYears: "" });
+    const [doctorData, setDoctorData] = useState({ fullName: "", specialty: "", experienceInYears: "", location:""});
     const [linkedDoctor, setLinkedDoctor] = useState(null);
     // const [DoctorUid, setDoctorUid] = useState()
 
@@ -205,12 +205,12 @@ const DoctorAssociation = ({ user, setDoctorUid, doctorUid }) => {
                     </div>
                     <div>
                         <Label htmlFor="address">Address</Label>
-                        <Input id="address" value={doctorData.address}
-                               onChange={(e) => setDoctorData({ ...doctorData, address: e.target.value })} required />
+                        <Input id="address" value={doctorData.location.address}
+                               onChange={(e) => setDoctorData({ ...doctorData, location: {...doctorData.location, address: e.target.value} })} required />
                     </div>
                     <div>
                         <Label htmlFor="state">State</Label>
-                        <Select onValueChange={(value) => setDoctorData({ ...doctorData, state: value })}>
+                        <Select onValueChange={(value) => setDoctorData({ ...doctorData, location: {...doctorData.location, state:value} })}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select a state" />
                             </SelectTrigger>
@@ -223,12 +223,12 @@ const DoctorAssociation = ({ user, setDoctorUid, doctorUid }) => {
                     </div>
                     <div>
                         <Label htmlFor="city">City</Label>
-                        <Select onValueChange={(value) => setDoctorData({ ...doctorData, city: value })} disabled={!doctorData.state}>
+                        <Select onValueChange={(value) => setDoctorData({ ...doctorData, location: {...doctorData.location, city:value} })} disabled={!doctorData.location.state}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select a city" />
                             </SelectTrigger>
                             <SelectContent>
-                                {states.find((s) => s.name === doctorData.state)?.cities.map((city) => (
+                                {states.find((s) => s.name === doctorData.location.state)?.cities.map((city) => (
                                     <SelectItem key={city} value={city}>{city}</SelectItem>
                                 ))}
                             </SelectContent>

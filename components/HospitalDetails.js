@@ -40,7 +40,6 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData, user }) => 
 
         fetchHospitalDetails()
 
-
         const fetchDoctorDetails = async () => {
             if (user?.uid) {
                 const docRef = doc(db, "doctors", user.uid)
@@ -86,7 +85,6 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData, user }) => 
             console.error("Error unlinking hospital:", error)
         }
     }
-
 
     const handleLinkHospital = async () => {
         try {
@@ -143,19 +141,26 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData, user }) => 
 
     const handleInputChange = (field, value) => {
         let updatedValue = value;
-
+        console.log(value);
         // Convert specific fields to numbers
         if (["experienceInYears", "consultationFees", "medicalLicenseNumber"].includes(field)) {
             updatedValue = value === "" ? "" : Number(value);
             if (isNaN(updatedValue)) return; // Prevent invalid number inputs
         }
-
-        setEditedHospital((prev) => ({ ...prev, [field]: updatedValue }));
-
         if (field === "state") {
             updateAvailableCities(value);
-            setEditedHospital((prev) => ({ ...prev, city: "" }));
+            setEditedHospital((prev) => ({ ...prev, location: {...editedHospital.location, city: ""} }));
+            setEditedHospital((prev) => ({ ...prev, location: {...editedHospital.location, state: value} }));
+            return;
         }
+
+        if (field === "city") {
+            setEditedHospital((prev) => ({ ...prev, location: {...editedHospital.location, city: value} }));
+            return;
+        }
+        setEditedHospital((prev) => ({ ...prev, [field]: updatedValue }));
+
+
     };
 
 
@@ -272,14 +277,14 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData, user }) => 
                             <Label htmlFor="address">Address</Label>
                             <Input
                                 id="address"
-                                value={editedHospital.address}
+                                value={editedHospital.location.address}
                                 onChange={(e) => handleInputChange("address", e.target.value)}
                                 required
                             />
                         </div>
                         <div>
                             <Label htmlFor="state">State</Label>
-                            <Select value={editedHospital.state}
+                            <Select value={editedHospital.location.state}
                                     onValueChange={(value) => handleInputChange("state", value)}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select State"/>
@@ -296,9 +301,9 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData, user }) => 
                         <div>
                             <Label htmlFor="city">City</Label>
                             <Select
-                                value={editedHospital.city}
+                                value={editedHospital.location.city}
                                 onValueChange={(value) => handleInputChange("city", value)}
-                                disabled={!editedHospital.state}
+                                disabled={!editedHospital.location.state}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select City"/>
@@ -350,15 +355,15 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData, user }) => 
 
                         <div>
                             <Label className="text-gray-600">Address</Label>
-                            <p className="text-xl font-medium">{hospital.address}</p>
+                            <p className="text-xl font-medium">{hospital.location.address}</p>
                         </div>
                         <div>
                             <Label className="text-gray-600">State</Label>
-                            <p className="text-xl font-medium">{hospital.state}</p>
+                            <p className="text-xl font-medium">{hospital.location.state}</p>
                         </div>
                         <div>
                             <Label className="text-gray-600">City</Label>
-                            <p className="text-xl font-medium">{hospital.city}</p>
+                            <p className="text-xl font-medium">{hospital.location.city}</p>
                         </div>
                     </div>
                 )}
