@@ -97,7 +97,7 @@ const DoctorProfilePage = () => {
     useEffect(() => {
         const fetchDoctorDetails = async () => {
             if (user?.uid) {
-                const docRef = doc(db, "doctors", user.uid)
+                const docRef = doc(db, "hospitals", user.uid)
                 const docSnap = await getDoc(docRef)
                 if (docSnap.exists()) {
                     setDoctorDetails(docSnap.data())
