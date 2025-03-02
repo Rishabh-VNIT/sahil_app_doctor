@@ -149,7 +149,7 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData, user }) => 
         }
         if (field === "state") {
             updateAvailableCities(value);
-            setEditedHospital((prev) => ({ ...prev, location: {...editedHospital.location, city: ""} }));
+            // setEditedHospital((prev) => ({ ...prev, location: {...editedHospital.location, city: ""} }));
             setEditedHospital((prev) => ({ ...prev, location: {...editedHospital.location, state: value} }));
             return;
         }
@@ -193,7 +193,7 @@ const HospitalDetails = ({ hospitalUid, userId, refreshHospitalData, user }) => 
                     <div className="relative group cursor-pointer mb-4">
                         <img
                             src={editedHospital?.profileImage || "/default-hospital.png"}
-                            alt="Hospital"
+                            alt="Doctor Image yet to upload"
                             className="w-48 h-48 rounded-lg shadow-md object-cover"
                         />
                         <div

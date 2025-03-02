@@ -384,58 +384,59 @@ console.log(hospital)
     };
 
 
-    // const handleTreatmentDone = async (schedule, slot) => {
-    //     try {
-    //         // Update the schedule document
-    //         const scheduleRef = doc(db, "doctors", user.uid, "schedules", schedule.id);
-    //         const updatedTimeSlots = schedule.timeSlots.map((timeSlot) => {
-    //             if (timeSlot.start === slot.start) {
-    //                 return {
-    //                     ...timeSlot,
-    //                     status: "Treatment Done"
-    //                 };
-    //             }
-    //             return timeSlot;
-    //         });
-    //
-    //         // Update schedule document
-    //         await updateDoc(scheduleRef, { timeSlots: updatedTimeSlots });
-    //
-    //         // Save treatment completion details to doctor_treatments collection
-    //         await addDoc(collection(db, 'doctor_treatments'), {
-    //             doctorId: user.uid,
-    //             scheduleId: schedule.id,
-    //             slotStart: slot.start,
-    //             slotEnd: slot.end,
-    //             patientId: slot.patient,
-    //             patientName: slot.patientName,
-    //             completionTime: serverTimestamp(),
-    //             clinic: user.clinic || null,
-    //             status: 'Completed',
-    //             treatmentNotes: slot.description || null,
-    //             prescriptionId: null  // Can be updated if you have prescription functionality
-    //         });
-    //
-    //         // Update local state
-    //         setSchedules(prevSchedules =>
-    //             prevSchedules.map(s => s.id === schedule.id ?
-    //                 { ...s, timeSlots: updatedTimeSlots } : s
-    //             )
-    //         );
-    //
-    //         setMessage("Treatment marked as done successfully!");
-    //         setStatus("success");
-    //
-    //     } catch (error) {
-    //         console.error("Error marking treatment as done:", error);
-    //         setMessage("Error marking treatment as done. Please try again later.");
-    //         setStatus("error");
-    //     }
-    // };
+    const handleTreatmentDoneNotUsed = async (schedule, slot) => {
+        try {
+            // Update the schedule document
+            const scheduleRef = doc(db, "doctors", user.uid, "schedules", schedule.id);
+            const updatedTimeSlots = schedule.timeSlots.map((timeSlot) => {
+                if (timeSlot.start === slot.start) {
+                    return {
+                        ...timeSlot,
+                        status: "Treatment Done"
+                    };
+                }
+                return timeSlot;
+            });
+
+            // Update schedule document
+            await updateDoc(scheduleRef, { timeSlots: updatedTimeSlots });
+
+            // Save treatment completion details to doctor_treatments collection
+            await addDoc(collection(db, 'doctor_treatments'), {
+                doctorId: user.uid,
+                scheduleId: schedule.id,
+                slotStart: slot.start,
+                slotEnd: slot.end,
+                patientId: slot.patient,
+                patientName: slot.patientName,
+                completionTime: serverTimestamp(),
+                clinic: user.clinic || null,
+                status: 'Completed',
+                treatmentNotes: slot.description || null,
+                prescriptionId: null  // Can be updated if you have prescription functionality
+            });
+
+            // Update local state
+            setSchedules(prevSchedules =>
+                prevSchedules.map(s => s.id === schedule.id ?
+                    { ...s, timeSlots: updatedTimeSlots } : s
+                )
+            );
+
+            setMessage("Treatment marked as done successfully!");
+            setStatus("success");
+
+        } catch (error) {
+            console.error("Error marking treatment as done:", error);
+            setMessage("Error marking treatment as done. Please try again later.");
+            setStatus("error");
+        }
+    };
 
 
     const [uploadDialog, setUploadDialog] = useState(false);
     const [currentSlot, setCurrentSlot] = useState(null);
+
     const handleTreatmentDone = async (schedule, slot) => {
 
         try {
@@ -449,7 +450,7 @@ console.log(hospital)
         }
     };
 
-    const handleLabReportUploaded = async (fileData, schedule, slot) => {
+    const handleDoctorReportUploaded = async (fileData, schedule, slot) => {
         try {
             // Update the schedule document
             const scheduleRef = doc(db, "doctors", hospital.uid, "schedules", schedule.id);
@@ -808,7 +809,7 @@ console.log(hospital)
             <LabReportUploadDialog
                 isOpen={uploadDialog}
                 onClose={() => setUploadDialog(false)}
-                onUpload={(fileData) => handleLabReportUploaded(fileData, currentSchedule, currentSlot)}
+                onUpload={(fileData) => handleDoctorReportUploaded(fileData, currentSchedule, currentSlot)}
                 slot={currentSlot}
             />
 

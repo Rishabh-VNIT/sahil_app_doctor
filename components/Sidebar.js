@@ -63,7 +63,7 @@ const Sidebar = ({ isOpen, setIsOpen, onDashboardClick, onAppointmentsClick, onS
                             </button>
                     </li>
                     <li>
-                        <Link href={"hospital"}>
+                        <Link href={"doctors"}>
                         <div onClick={onSettingsClick} className="w-full flex items-center px-4 py-3 hover:bg-blue-500 transition-colors duration-200">
                             <Settings className="h-5 w-5 mr-3" />
                             Hospital

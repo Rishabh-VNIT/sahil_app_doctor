@@ -1,4 +1,3 @@
-// firebase/config.js
 
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -6,12 +5,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Firebase configuration
 export const firebaseConfig = {
-    apiKey: "AIzaSyBrYQimpSpcXcOfBTA9ephHd6G05SM2bYA",
-    authDomain: "doctor-app-data-c0eb7.firebaseapp.com",
-    projectId: "doctor-app-data-c0eb7",
-    storageBucket: "doctor-app-data-c0eb7.appspot.com",
-    messagingSenderId: "228452345569",
-    appId: "1:228452345569:android:891c815d759b620c8639a0",
+    apiKey: "AIzaSyA8pM6a6uN4EqqP2WsmHJreO33nIn7VQUk",
+    authDomain: "sahil-app-doctor.firebaseapp.com",
+    projectId: "sahil-app-doctor",
+    storageBucket: "sahil-app-doctor.appspot.com",
+    messagingSenderId: "853007663641",
+    appId: "1:853007663641:android:aa761a74727050efe5e088",
 };
 
 // Initialize Firebase app only if it hasn't been initialized already
